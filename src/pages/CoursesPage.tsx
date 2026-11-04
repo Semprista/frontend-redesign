@@ -4,7 +4,6 @@ import {
   BookOpen,
   GraduationCap,
   Sparkles,
-  ExternalLink,
   CheckCircle2,
   Clock,
   Layers,
@@ -16,7 +15,6 @@ import { Progress } from "@/components/ui/progress"
 import {
   Card,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -187,9 +185,10 @@ export default function CoursesPage() {
         {filteredCourses.map((course) => (
           <Card
             key={course.id}
-            className="group relative flex flex-col justify-between overflow-hidden transition-all duration-200 hover:shadow-lg hover:ring-foreground/20 hover:-translate-y-0.5"
+            size="sm"
+            className="group relative flex flex-col justify-between overflow-hidden pt-0 gap-0 transition-all duration-200 hover:shadow-lg hover:ring-foreground/20 hover:-translate-y-0.5"
           >
-            {/* Vignette couverture Moodle */}
+            {/* Vignette couverture Moodle collée tout en haut */}
             <div className="relative aspect-video w-full overflow-hidden bg-muted">
               <img
                 src={course.thumbnailSrc}
@@ -209,7 +208,7 @@ export default function CoursesPage() {
               </div>
 
               {/* Semestre & Enseignant en bas de vignette */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
+              <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
                 <span className="font-medium text-white/90">{course.term}</span>
                 <span className="flex items-center gap-1 text-white/80">
                   <GraduationCap className="size-3.5" />
@@ -218,28 +217,33 @@ export default function CoursesPage() {
               </div>
             </div>
 
-            {/* Titre et description */}
-            <CardHeader className="p-5 pb-3">
-              <CardTitle className="text-base font-semibold leading-snug line-clamp-1 group-hover:text-primary transition-colors">
-                {course.title}
+            {/* Titre et description compacts */}
+            <CardHeader className="pt-3 pb-2 px-4 gap-1">
+              <CardTitle className="text-base font-semibold leading-snug line-clamp-1">
+                <a
+                  href={`#course-${course.id}`}
+                  className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:underline"
+                >
+                  {course.title}
+                </a>
               </CardTitle>
-              <CardDescription className="line-clamp-2 text-xs leading-relaxed mt-1">
+              <CardDescription className="line-clamp-2 text-xs leading-relaxed">
                 {course.description}
               </CardDescription>
             </CardHeader>
 
-            {/* Progression & Métriques */}
-            <div className="px-5 py-2 space-y-2">
+            {/* Progression & Métriques resserrées */}
+            <div className="px-4 pt-2 pb-4 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground flex items-center gap-1.5">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[12px]">
                   <CheckCircle2 className="size-3.5 text-primary" />
                   Progression
                 </span>
-                <span className="font-semibold text-foreground">{course.progress}%</span>
+                <span className="font-semibold text-foreground text-xs">{course.progress}%</span>
               </div>
               <Progress value={course.progress} className="h-1.5" />
 
-              <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground">
+              <div className="flex items-center justify-between pt-0.5 text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Layers className="size-3" />
                   {course.completedResources} / {course.totalResources} ressources
@@ -250,22 +254,6 @@ export default function CoursesPage() {
                 </span>
               </div>
             </div>
-
-            {/* Pied de carte avec actions */}
-            <CardFooter className="p-5 pt-3 border-t bg-muted/20 flex items-center gap-2">
-              <Button size="sm" className="w-full gap-2 text-xs font-medium">
-                <BookOpen className="size-3.5" />
-                Accéder au cours
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
-                title="Ouvrir sur Moodle UNIGE"
-              >
-                <ExternalLink className="size-3.5" />
-              </Button>
-            </CardFooter>
           </Card>
         ))}
       </div>
