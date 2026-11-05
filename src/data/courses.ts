@@ -15,6 +15,11 @@ export interface CourseObjective {
   completed: boolean
 }
 
+export interface CourseFile {
+  name: string
+  size: string
+}
+
 export interface Course {
   id: string
   source: string,
@@ -25,6 +30,7 @@ export interface Course {
   thumbnailSrc: string
   description: string,
   objectives: CourseObjective[]
+  files: CourseFile[]
   source_url?: string,
   mediaserver_url?: string
 }
@@ -45,6 +51,11 @@ export const mockCourses: Course[] = [
       { title: "Créer, modifier et interroger une base de données en SQL", completed: false },
       { title: "Gérer les transactions et la concurrence", completed: false },
     ],
+    files: [
+      { name: "Support de cours - Introduction.pdf", size: "2,4 Mo" },
+      { name: "Exercices SQL.zip", size: "1,8 Mo" },
+      { name: "Schéma relationnel.png", size: "640 Ko" },
+    ],
     source_url: "https://moodle.unige.ch/enrol/index.php?id=20624",
     mediaserver_url: "https://mediaserver.unige.ch/play/294112"
   },
@@ -62,6 +73,7 @@ export const mockCourses: Course[] = [
       { title: "Implémenter des structures de données classiques", completed: false },
       { title: "Choisir une solution adaptée à un problème algorithmique", completed: false },
     ],
+    files: [],
   },
   {
     id: "course-3",
@@ -77,6 +89,7 @@ export const mockCourses: Course[] = [
       { title: "Modéliser des phénomènes avec des variables aléatoires", completed: false },
       { title: "Appliquer les méthodes d'estimation statistique", completed: false },
     ],
+    files: [],
   },
   {
     id: "course-4",
@@ -92,6 +105,7 @@ export const mockCourses: Course[] = [
       { title: "Écrire et lire des programmes en assembleur", completed: false },
       { title: "Expliquer la gestion des processus et de la mémoire", completed: false },
     ],
+    files: [],
   },
   {
     id: "course-5",
@@ -107,6 +121,7 @@ export const mockCourses: Course[] = [
       { title: "Écrire des requêtes SQL avancées", completed: false },
       { title: "Optimiser l'accès aux données", completed: false },
     ],
+    files: [],
   },
   {
     id: "course-6",
@@ -122,5 +137,6 @@ export const mockCourses: Course[] = [
       { title: "Concevoir des prototypes interactifs", completed: false },
       { title: "Évaluer une interface avec des tests utilisateurs", completed: false },
     ],
+    files: [],
   },
 ]

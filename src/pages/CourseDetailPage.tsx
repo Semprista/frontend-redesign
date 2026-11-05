@@ -3,7 +3,9 @@ import {
   ArrowLeft,
   ArrowUpRightIcon,
   Building2,
+  FileText,
   GraduationCap,
+  Plus,
   Sparkles,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -81,11 +83,11 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <div className="min-w-0 flex-1 space-y-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start">
+        <div className="min-w-0 flex-1 space-y-3">
           {
             course.source === courseSource.MOODLE && (
-              <div className="space-x-2 flex justify-end w-full">
+              <div className="space-x-3 flex justify-end w-full">
                 <a href={course.source_url}>
                   <Button>
                     <span>Moodle</span>
@@ -119,7 +121,7 @@ export default function CourseDetailPage() {
             En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
           </div>
         </div>
-        <div className="w-full md:w-80 md:shrink-0">
+        <div className="w-full md:w-80 md:shrink-0 space-y-2">
           <Card className="border bg-background shadow-none ring-0">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold">Objectifs du cours</CardTitle>
@@ -127,7 +129,7 @@ export default function CourseDetailPage() {
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 {course.objectives.map((objective) => (
-                  <li key={objective.title} className="flex gap-2.5 leading-relaxed">
+                  <li key={objective.title} className="flex gap-2.5 leading-relaxed items-center">
                     <input
                       type="checkbox"
                       checked={objective.completed}
@@ -139,6 +141,35 @@ export default function CourseDetailPage() {
                   </li>
                 ))}
               </ul>
+            </CardContent>
+          </Card>
+          <Card className="border bg-background shadow-none ring-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-3 pb-3">
+              <CardTitle className="text-base font-semibold">Fichiers du cours</CardTitle>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Ajouter un fichier"
+                title="Ajouter un fichier"
+              >
+                <Plus />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {course.files.length > 0 ? (
+                <ul className="space-y-2">
+                  {course.files.map((file) => (
+                    <li key={file.name} className="flex items-center gap-2.5 text-sm">
+                      <FileText className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{file.size}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">Aucun fichier ajouté.</p>
+              )}
             </CardContent>
           </Card>
         </div>
