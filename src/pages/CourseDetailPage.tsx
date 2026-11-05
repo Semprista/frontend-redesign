@@ -1,18 +1,34 @@
 import { useState } from "react"
 import { Link, useNavigate, useParams } from "react-router"
-import { ArrowLeft, ArrowUpRightIcon, Building2, GraduationCap, Plus, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowUpRightIcon, Building2, FilePlus, GraduationCap, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { courseSource, mockCourses, type CourseActivity } from "@/data/courses"
 import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { ActivityList, EmptyState, FilesCard, KanbanBoard, ObjectivesSection, SectionHeading } from "@/components/course/CourseSections"
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} Ko`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
+}
 
 export default function CourseDetailPage() {
   const { courseId } = useParams()
   const course = mockCourses.find((item) => item.id === courseId)
   const navigate = useNavigate()
   const [activityTitle, setActivityTitle] = useState("")
+  const [activityFiles, setActivityFiles] = useState<File[]>([])
+  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false)
   const [activities, setActivities] = useLocalStorage<CourseActivity[]>(
     `frontend-redesign:course:${courseId ?? "unknown"}:activities`,
     course?.activities ?? []
@@ -51,13 +67,18 @@ export default function CourseDetailPage() {
       id: `activity-${Date.now()}`,
       title,
       description: "Cette activité sera analysée à partir des fichiers sélectionnés.",
-      files: [],
+      files: activityFiles.map((file) => ({
+        name: file.name,
+        size: formatFileSize(file.size),
+      })),
       notions: [],
       analysisStatus: "analyzing",
     }
 
     setActivities((current) => [...current, activity])
     setActivityTitle("")
+    setActivityFiles([])
+    setIsActivityDialogOpen(false)
     navigate(`/courses/${course.id}/activities/${activity.id}`)
   }
 
@@ -109,58 +130,89 @@ export default function CourseDetailPage() {
         </div>
       )}
 
-      <KanbanBoard activities={activities} courseId={course.id} deadlines={course.deadlines} />
-
-      <Separator className="my-2" />
-
       <main className="space-y-8">
         <ObjectivesSection
           objectives={course.objectives}
           isCompleted={isObjectiveCompleted}
         />
         <Separator />
+        <KanbanBoard activities={activities} courseId={course.id} deadlines={course.deadlines} />
+        <Separator />
         <section className="space-y-5">
           <div className="flex items-end justify-between gap-4">
-            <SectionHeading title="Activités" icon={<Sparkles className="size-4 text-muted-foreground" />} />
+            <SectionHeading title="Activités" />
             <span className="text-xs text-muted-foreground">
               {activities.length} activité{activities.length === 1 ? "" : "s"}
             </span>
           </div>
 
-          <form onSubmit={createActivity} className="rounded-2xl border border-dashed bg-muted/20 p-4">
-            <label htmlFor="activity-title" className="mb-2 block text-xs font-medium">
-              Créer une activité
-            </label>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input
-                id="activity-title"
-                value={activityTitle}
-                onChange={(event) => setActivityTitle(event.target.value)}
-                placeholder="Ex. Semaine 3 — Normalisation"
-                className="min-w-0 flex-1 rounded-xl border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-              />
-              <Button type="submit" className="shrink-0">
-                <Plus /> Nouvelle activité
-              </Button>
-            </div>
-          </form>
-
-          {activities.length > 0 ? <ActivityList activities={activities} courseId={course.id} onAdd={() => document.getElementById("activity-title")?.focus()} /> : (
+          {activities.length > 0 ? <ActivityList activities={activities} courseId={course.id} onAdd={() => setIsActivityDialogOpen(true)} /> : (
             <div className="flex gap-3 overflow-x-auto pb-2">
               <EmptyState text="Aucune activité créée pour le moment." />
-              <button type="button" onClick={() => document.getElementById("activity-title")?.focus()} className="flex min-h-24 w-72 shrink-0 items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground">
+              <button type="button" onClick={() => setIsActivityDialogOpen(true)} className="flex w-72 shrink-0 items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground">
                 <Plus className="mr-2 size-4" /> Ajouter une activité
               </button>
             </div>
           )}
-        </section>
 
+          <Dialog open={isActivityDialogOpen} onOpenChange={setIsActivityDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Créer une activité</DialogTitle>
+                <DialogDescription>
+                  Donnez un nom à l’activité et sélectionnez les fichiers à analyser.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={createActivity} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="activity-title" className="text-sm font-medium">
+                    Nom de l’activité
+                  </label>
+                  <input
+                    id="activity-title"
+                    value={activityTitle}
+                    onChange={(event) => setActivityTitle(event.target.value)}
+                    placeholder="Ex. Semaine 3 — Normalisation"
+                    required
+                    autoFocus
+                    className="w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="activity-files"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    <FilePlus className="size-4" /> Sélectionner des fichiers
+                  </label>
+                  <input
+                    id="activity-files"
+                    type="file"
+                    multiple
+                    className="sr-only"
+                    onChange={(event) => setActivityFiles(Array.from(event.target.files ?? []))}
+                  />
+                  {activityFiles.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {activityFiles.length} fichier{activityFiles.length === 1 ? "" : "s"} sélectionné{activityFiles.length === 1 ? "" : "s"}
+                    </p>
+                  )}
+                </div>
+                <DialogFooter>
+                  <DialogClose render={<Button type="button" variant="outline" />}>
+                    Annuler
+                  </DialogClose>
+                  <Button type="submit">
+                    <Plus /> Nouvelle activité
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </section>
         <Separator />
-
-        <section className="space-y-5">
-          <FilesCard files={course.files} />
-        </section>
+        <FilesCard files={course.files} />
       </main>
-    </div>
+    </div >
   )
 }

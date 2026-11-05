@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { ArrowRight, CheckCircle2, Circle, FileText, KanbanSquare, Plus, Sparkles } from "lucide-react"
+import { ArrowRight, CheckCircle2, Circle, FileText, KanbanSquare, Plus } from "lucide-react"
 import { Link } from "react-router"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,7 +33,7 @@ export function ActivityList({
       <button
         type="button"
         onClick={onAdd}
-        className="flex min-h-48 w-72 shrink-0 snap-start items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground"
+        className="flex w-72 shrink-0 snap-start items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground"
       >
         <Plus className="mr-2 size-4" /> Ajouter une activité
       </button>
@@ -54,17 +54,13 @@ function ActivityCard({ activity, courseId }: { activity: CourseActivity; course
         : "Terminée"
 
   return (
-    <Card className="min-h-48 w-72 shrink-0 snap-start transition-colors hover:border-primary/40 hover:bg-muted/20">
-      <CardContent className="p-4">
+    <div className="w-72 shrink-0 snap-start rounded-2xl border border-border bg-card text-sm text-card-foreground transition-colors hover:border-primary/40 hover:bg-muted/20">
+      <div className="p-4">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Sparkles className="size-4" />
-          </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <h3 className="truncate text-sm font-semibold">{activity.title}</h3>
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{activity.description}</p>
               </div>
               <Badge variant={activity.analysisStatus === "analyzing" ? "secondary" : "outline"} className="shrink-0 text-[10px] font-normal">
                 {status}
@@ -82,8 +78,8 @@ function ActivityCard({ activity, courseId }: { activity: CourseActivity; course
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -119,27 +115,23 @@ export function ObjectivesSection({
 
 export function FilesCard({ files }: { files: CourseFile[] }) {
   return (
-    <Card>
-      <CardHeader className="border-b pb-5">
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-xl">Fichiers du cours</CardTitle>
-          <Button type="button" variant="ghost" size="icon-sm" aria-label="Ajouter un fichier" title="Ajouter un fichier"><Plus /></Button>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        {files.length > 0 ? (
-          <ul className="space-y-3">
-            {files.map((file) => (
-              <li key={file.name} className="flex items-center gap-2.5 text-sm">
-                <FileText className="size-4 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">{file.name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">{file.size}</span>
-              </li>
-            ))}
-          </ul>
-        ) : <EmptyState text="Aucun fichier ajouté." />}
-      </CardContent>
-    </Card>
+    <section className="space-y-5">
+      <div className="flex items-center justify-between gap-4">
+        <SectionHeading title="Fichiers du cours" />
+        <Button type="button" variant="ghost" size="icon-sm" aria-label="Ajouter un fichier" title="Ajouter un fichier"><Plus /></Button>
+      </div>
+      {files.length > 0 ? (
+        <ul className="divide-y">
+          {files.map((file) => (
+            <li key={file.name} className="flex items-center gap-2.5 py-3 text-sm">
+              <FileText className="size-4 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1 truncate">{file.name}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{file.size}</span>
+            </li>
+          ))}
+        </ul>
+      ) : <EmptyState text="Aucun fichier ajouté." />}
+    </section>
   )
 }
 
@@ -158,7 +150,6 @@ export function KanbanBoard({
   return (
     <section className="space-y-5">
       <div className="flex items-center gap-3">
-        <KanbanSquare className="size-4 text-muted-foreground" />
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">Vue d’ensemble</h2>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
