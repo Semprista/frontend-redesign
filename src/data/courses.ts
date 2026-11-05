@@ -11,8 +11,8 @@ export const courseSource = {
 }
 
 export interface CourseObjective {
+  id: string
   title: string
-  completed: boolean
 }
 
 export interface CourseFile {
@@ -21,6 +21,7 @@ export interface CourseFile {
 }
 
 export interface ActivityNotion {
+  objectiveId: string
   title: string
   description: string
   mastered: boolean
@@ -70,10 +71,10 @@ export const mockCourses: Course[] = [
     thumbnailSrc: imgUrl,
     description: "L'objectifs du cours - savoir créer, modifier et interroger des bases de données relationnelles.\nLe cours présentera les fondements des bases de données relationnelles:\nModèle de données rationnel: concepts de base, dépendances fonctionnelles, formes normales et normalisation\n- Algèbre relationnelle\n- SQL: création, modification et interrogation des bases de données\n - Transactions et la gestion de la concurrence ",
     objectives: [
-      { title: "Comprendre les fondements des bases de données relationnelles", completed: true },
-      { title: "Modéliser des données avec l'algèbre relationnelle", completed: false },
-      { title: "Créer, modifier et interroger une base de données en SQL", completed: false },
-      { title: "Gérer les transactions et la concurrence", completed: false },
+      { id: "objective-1", title: "Comprendre les fondements des bases de données relationnelles" },
+      { id: "objective-2", title: "Modéliser des données avec l'algèbre relationnelle" },
+      { id: "objective-3", title: "Créer, modifier et interroger une base de données en SQL" },
+      { id: "objective-4", title: "Gérer les transactions et la concurrence" },
     ],
     files: [
       { name: "Support de cours - Introduction.pdf", size: "2,4 Mo" },
@@ -91,11 +92,13 @@ export const mockCourses: Course[] = [
         ],
         notions: [
           {
+            objectiveId: "objective-1",
             title: "Modèle relationnel",
             description: "Représentation des données sous forme de relations et de tables.",
             mastered: true,
           },
           {
+            objectiveId: "objective-2",
             title: "Dépendances fonctionnelles",
             description: "Relations entre les attributs permettant de structurer un schéma.",
             mastered: false,
@@ -112,11 +115,13 @@ export const mockCourses: Course[] = [
         ],
         notions: [
           {
+            objectiveId: "objective-3",
             title: "Requêtes SELECT",
             description: "Interrogation de tables pour extraire les données recherchées.",
             mastered: false,
           },
           {
+            objectiveId: "objective-3",
             title: "Filtrage avec WHERE",
             description: "Restriction des résultats selon des conditions.",
             mastered: false,
@@ -142,9 +147,9 @@ export const mockCourses: Course[] = [
     thumbnailSrc: img1Url,
     description: "Complexité temporelle, tris, récursivité, arbres, graphes et tables de hachage.",
     objectives: [
-      { title: "Analyser la complexité d'un algorithme", completed: false },
-      { title: "Implémenter des structures de données classiques", completed: false },
-      { title: "Choisir une solution adaptée à un problème algorithmique", completed: false },
+      { id: "objective-1", title: "Analyser la complexité d'un algorithme" },
+      { id: "objective-2", title: "Implémenter des structures de données classiques" },
+      { id: "objective-3", title: "Choisir une solution adaptée à un problème algorithmique" },
     ],
     files: [],
     activities: [],
@@ -160,9 +165,9 @@ export const mockCourses: Course[] = [
     thumbnailSrc: img2Url,
     description: "Espaces probabilisés, variables aléatoires discrètes et continues, lois usuelles et estimation.",
     objectives: [
-      { title: "Maîtriser les concepts fondamentaux des probabilités", completed: false },
-      { title: "Modéliser des phénomènes avec des variables aléatoires", completed: false },
-      { title: "Appliquer les méthodes d'estimation statistique", completed: false },
+      { id: "objective-1", title: "Maîtriser les concepts fondamentaux des probabilités" },
+      { id: "objective-2", title: "Modéliser des phénomènes avec des variables aléatoires" },
+      { id: "objective-3", title: "Appliquer les méthodes d'estimation statistique" },
     ],
     files: [],
     activities: [],
@@ -178,9 +183,9 @@ export const mockCourses: Course[] = [
     thumbnailSrc: img3Url,
     description: "Architecture matérielle de von Neumann, assembleur, processus et gestion de la mémoire virtuelle.",
     objectives: [
-      { title: "Comprendre l'architecture d'un système informatique", completed: false },
-      { title: "Écrire et lire des programmes en assembleur", completed: false },
-      { title: "Expliquer la gestion des processus et de la mémoire", completed: false },
+      { id: "objective-1", title: "Comprendre l'architecture d'un système informatique" },
+      { id: "objective-2", title: "Écrire et lire des programmes en assembleur" },
+      { id: "objective-3", title: "Expliquer la gestion des processus et de la mémoire" },
     ],
     files: [],
     activities: [],
@@ -196,9 +201,9 @@ export const mockCourses: Course[] = [
     thumbnailSrc: img4Url,
     description: "Modèle relationnel, normalisation, algèbre relationnelle et requêtes SQL avancées.",
     objectives: [
-      { title: "Concevoir un schéma relationnel normalisé", completed: false },
-      { title: "Écrire des requêtes SQL avancées", completed: false },
-      { title: "Optimiser l'accès aux données", completed: false },
+      { id: "objective-1", title: "Concevoir un schéma relationnel normalisé" },
+      { id: "objective-2", title: "Écrire des requêtes SQL avancées" },
+      { id: "objective-3", title: "Optimiser l'accès aux données" },
     ],
     files: [],
     activities: [],
@@ -214,9 +219,9 @@ export const mockCourses: Course[] = [
     thumbnailSrc: img5Url,
     description: "Principes heuristiques de Nielsen, ergonomie cognitive, prototypage et tests utilisateurs.",
     objectives: [
-      { title: "Appliquer les principes d'ergonomie et d'utilisabilité", completed: false },
-      { title: "Concevoir des prototypes interactifs", completed: false },
-      { title: "Évaluer une interface avec des tests utilisateurs", completed: false },
+      { id: "objective-1", title: "Appliquer les principes d'ergonomie et d'utilisabilité" },
+      { id: "objective-2", title: "Concevoir des prototypes interactifs" },
+      { id: "objective-3", title: "Évaluer une interface avec des tests utilisateurs" },
     ],
     files: [],
     activities: [],

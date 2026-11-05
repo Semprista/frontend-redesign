@@ -21,6 +21,12 @@ export default function CourseDetailPage() {
   const navigate = useNavigate()
   const [activityTitle, setActivityTitle] = useState("")
   const [activities, setActivities] = useState<CourseActivity[]>(course?.activities ?? [])
+  const isObjectiveCompleted = (objectiveId: string) => {
+    const notions = activities.flatMap((activity) =>
+      activity.notions.filter((notion) => notion.objectiveId === objectiveId)
+    )
+    return notions.length > 0 && notions.every((notion) => notion.mastered)
+  }
 
   if (!course) {
     return (
@@ -87,6 +93,29 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+
+      {
+        course.source === courseSource.MOODLE && (
+          <div className="space-x-3 flex justify-end w-full">
+            <a href={course.source_url}>
+              <Button>
+                <span>Moodle</span>
+                <ArrowUpRightIcon />
+              </Button>
+            </a>
+            {
+              course.mediaserver_url && (
+                <a href={course.mediaserver_url}>
+                  <Button>
+                    <span>Mediaserver</span>
+                    <ArrowUpRightIcon />
+                  </Button>
+                </a>
+              )
+            }
+          </div>
+        )
+      }
 
       <section className="space-y-3">
         <div className="flex items-center gap-2">
@@ -168,36 +197,6 @@ export default function CourseDetailPage() {
 
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="min-w-0 flex-1 space-y-3">
-          {
-            course.source === courseSource.MOODLE && (
-              <div className="space-x-3 flex justify-end w-full">
-                <a href={course.source_url}>
-                  <Button>
-                    <span>Moodle</span>
-                    <ArrowUpRightIcon />
-                  </Button>
-                </a>
-                {
-                  course.mediaserver_url && (
-                    <a href={course.mediaserver_url}>
-                      <Button>
-                        <span>Mediaserver</span>
-                        <ArrowUpRightIcon />
-                      </Button>
-                    </a>
-                  )
-                }
-              </div>
-            )
-          }
-
-          <div>
-            <h2 className="text-base font-semibold">Présentation du cours</h2>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-              {course.description}
-            </p>
-          </div>
-
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold">Activités</h2>
@@ -284,7 +283,7 @@ export default function CourseDetailPage() {
                   <li key={objective.title} className="flex gap-2.5 leading-relaxed items-center">
                     <input
                       type="checkbox"
-                      checked={objective.completed}
+                      checked={isObjectiveCompleted(objective.id)}
                       readOnly
                       aria-label={objective.title}
                       className="mt-1 size-4 shrink-0 accent-primary"
