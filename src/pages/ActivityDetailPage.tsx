@@ -74,6 +74,18 @@ export default function ActivityDetailPage() {
       : exerciseSupport === "Correction détaillée"
         ? "avec une correction détaillée à consulter après votre tentative"
         : "avec une piste progressive à consulter si nécessaire"
+    const prompt = `Tu es un tuteur pédagogique. Génère un exercice personnalisé à partir des notions suivantes :
+${activity.notions.map((notion) => `- ${notion.title} : ${notion.summary ?? notion.description}`).join("\n")}
+
+Contraintes :
+- Niveau : ${exerciseDifficulty}
+- Format : ${exerciseFormat}
+- Accompagnement : ${exerciseSupport}
+- Préférences de l'étudiant : ${preferences || "Aucune préférence supplémentaire"}
+
+L'exercice doit être cohérent avec ces notions, suffisamment précis pour être réalisé, et ne doit pas introduire de concept hors sujet. Retourne un énoncé clair${exerciseSupport === "Correction détaillée" ? ", puis une correction détaillée séparée" : exerciseSupport === "Avec une piste" ? " et une piste progressive séparée" : ""}.`
+    console.log("[Exercice personnalisé] Prompt envoyé à l'IA :", prompt)
+
     setGeneratedExercise({
       title: `${exerciseFormat} · ${exerciseDifficulty}`,
       instruction: `En vous appuyant uniquement sur « ${focus} », réalisez un ${exerciseFormat.toLowerCase()} de niveau ${exerciseDifficulty.toLowerCase()}. ${preferences || "Construisez un exemple concret et expliquez vos choix."} Travaillez ${support}.`,
