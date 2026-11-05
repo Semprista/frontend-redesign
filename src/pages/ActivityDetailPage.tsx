@@ -1,3 +1,4 @@
+import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Link, useParams } from "react-router"
 import { ArrowLeft, CheckCircle2, Circle, FileText, LoaderCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -7,7 +8,28 @@ import { mockCourses } from "@/data/courses"
 export default function ActivityDetailPage() {
   const { courseId, activityId } = useParams()
   const course = mockCourses.find((item) => item.id === courseId)
-  const activity = course?.activities.find((item) => item.id === activityId)
+  const [activities, setActivities] = useLocalStorage(
+    `frontend-redesign:course:${courseId ?? "unknown"}:activities`,
+    course?.activities ?? []
+  )
+  const activity = activities.find((item) => item.id === activityId)
+
+  const toggleNotion = (notionTitle: string) => {
+    setActivities((current) =>
+      current.map((item) =>
+        item.id === activityId
+          ? {
+              ...item,
+              notions: item.notions.map((notion) =>
+                notion.title === notionTitle
+                  ? { ...notion, mastered: !notion.mastered }
+                  : notion
+              ),
+            }
+          : item
+      )
+    )
+  }
 
   if (!course || !activity) {
     return (
@@ -48,20 +70,28 @@ export default function ActivityDetailPage() {
             ) : (
               <div className="space-y-2">
                 {activity.notions.map((notion) => (
-                  <details key={notion.title} className="group rounded-xl border">
-                    <summary className="flex cursor-pointer list-none items-center gap-3 p-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
-                      {notion.mastered ? (
-                        <CheckCircle2 className="size-4 shrink-0 text-primary" />
-                      ) : (
-                        <Circle className="size-4 shrink-0 text-muted-foreground" />
-                      )}
+                  <div key={notion.title} className="rounded-xl border">
+                    <div className="flex items-center gap-3 p-3 text-sm font-medium">
+                      <button
+                        type="button"
+                        onClick={() => toggleNotion(notion.title)}
+                        aria-pressed={notion.mastered}
+                        aria-label={notion.mastered ? `Marquer ${notion.title} comme à revoir` : `Marquer ${notion.title} comme maîtrisée`}
+                        className="shrink-0 rounded-full transition-colors hover:text-primary"
+                      >
+                        {notion.mastered ? (
+                          <CheckCircle2 className="size-5 text-primary" />
+                        ) : (
+                          <Circle className="size-5 text-muted-foreground" />
+                        )}
+                      </button>
                       <span className="flex-1">{notion.title}</span>
                       <span className="text-xs font-normal text-muted-foreground">
                         {notion.mastered ? "Maîtrisée" : "À revoir"}
                       </span>
-                    </summary>
-                    <p className="px-10 pb-3 text-xs leading-relaxed text-muted-foreground">{notion.description}</p>
-                  </details>
+                    </div>
+                    <p className="px-11 pb-3 text-xs leading-relaxed text-muted-foreground">{notion.description}</p>
+                  </div>
                 ))}
               </div>
             )}
