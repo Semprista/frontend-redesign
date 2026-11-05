@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router"
+import { useState } from "react"
+import { useNavigate, useParams, Link } from "react-router"
 import {
   ArrowLeft,
   ArrowUpRightIcon,
@@ -9,13 +10,16 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { courseSource, mockCourses } from "@/data/courses"
+import { courseSource, mockCourses, type CourseActivity } from "@/data/courses"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function CourseDetailPage() {
   const { courseId } = useParams()
   const course = mockCourses.find((c) => c.id === courseId)
+  const navigate = useNavigate()
+  const [activityTitle, setActivityTitle] = useState("")
+  const [activities, setActivities] = useState<CourseActivity[]>(course?.activities ?? [])
 
   if (!course) {
     return (
@@ -115,16 +119,85 @@ export default function CourseDetailPage() {
             </p>
           </div>
 
-          {/* Espace prêt à être enrichi selon tes instructions */}
-          <div className="p-8 border border-dashed rounded-2xl text-center text-xs text-muted-foreground bg-muted/10">
-            <Sparkles className="size-5 mx-auto mb-2 text-muted-foreground/60" />
-            En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold">Activités</h2>
+              <span className="text-xs text-muted-foreground">{activities.length} activité{activities.length === 1 ? "" : "s"}</span>
+            </div>
+
+            <form
+              className="flex flex-col gap-2 rounded-2xl border border-dashed p-4 sm:flex-row"
+              onSubmit={(event) => {
+                event.preventDefault()
+                const title = activityTitle.trim()
+                if (!title || !course) return
+                const activity: CourseActivity = {
+                  id: `activity-${Date.now()}`,
+                  title,
+                  description: "Cette activité sera analysée à partir des fichiers sélectionnés.",
+                  files: [],
+                  notions: [],
+                  analysisStatus: "analyzing",
+                }
+                course.activities.push(activity)
+                setActivities((current) => [...current, activity])
+                setActivityTitle("")
+                navigate(`/courses/${course.id}/activities/${activity.id}`)
+              }}
+            >
+              <input
+                value={activityTitle}
+                onChange={(event) => setActivityTitle(event.target.value)}
+                placeholder="Nom de la séance ou de la semaine"
+                aria-label="Nom de la nouvelle activité"
+                className="min-w-0 flex-1 rounded-xl border bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <Button type="submit" className="shrink-0">
+                <Plus /> Nouvelle activité
+              </Button>
+            </form>
+
+            {activities.length > 0 ? (
+              <div className="space-y-2">
+                {activities.map((activity) => (
+                  <details key={activity.id} className="group rounded-2xl border">
+                    <summary className="flex cursor-pointer list-none items-center gap-3 p-4 [&::-webkit-details-marker]:hidden">
+                      <Sparkles className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{activity.title}</span>
+                      <span className="text-xs text-muted-foreground">{activity.files.length} fichier{activity.files.length === 1 ? "" : "s"}</span>
+                    </summary>
+                    <div className="border-t px-4 pb-4 pt-3">
+                      <p className="text-xs leading-relaxed text-muted-foreground">{activity.description}</p>
+                      <Link
+                        to={`/courses/${course.id}/activities/${activity.id}`}
+                        className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+                      >
+                        Ouvrir l’activité
+                      </Link>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                Aucune activité créée pour le moment.
+              </div>
+            )}
           </div>
         </div>
         <div className="w-full md:w-80 md:shrink-0 space-y-2">
           <Card className="border bg-background shadow-none ring-0">
-            <CardHeader className="pb-3">
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base font-semibold">Objectifs du cours</CardTitle>
+              <Button
+                type="button"
+                variant="default"
+                size="icon-sm"
+                aria-label="Ajouter un fichier"
+                title="Ajouter un fichier"
+              >
+                <Plus />
+              </Button>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
@@ -144,11 +217,11 @@ export default function CourseDetailPage() {
             </CardContent>
           </Card>
           <Card className="border bg-background shadow-none ring-0">
-            <CardHeader className="flex flex-row items-center justify-between space-y-3 pb-3">
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base font-semibold">Fichiers du cours</CardTitle>
               <Button
                 type="button"
-                variant="ghost"
+                variant="default"
                 size="icon-sm"
                 aria-label="Ajouter un fichier"
                 title="Ajouter un fichier"

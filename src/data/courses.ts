@@ -20,6 +20,21 @@ export interface CourseFile {
   size: string
 }
 
+export interface ActivityNotion {
+  title: string
+  description: string
+  mastered: boolean
+}
+
+export interface CourseActivity {
+  id: string
+  title: string
+  description: string
+  files: CourseFile[]
+  notions: ActivityNotion[]
+  analysisStatus: "analyzing" | "completed"
+}
+
 export interface Course {
   id: string
   source: string,
@@ -31,6 +46,7 @@ export interface Course {
   description: string,
   objectives: CourseObjective[]
   files: CourseFile[]
+  activities: CourseActivity[]
   source_url?: string,
   mediaserver_url?: string
 }
@@ -56,6 +72,51 @@ export const mockCourses: Course[] = [
       { name: "Exercices SQL.zip", size: "1,8 Mo" },
       { name: "Schéma relationnel.png", size: "640 Ko" },
     ],
+    activities: [
+      {
+        id: "activity-1",
+        title: "Semaine 1 — Introduction aux bases de données",
+        description: "Première séance consacrée aux concepts fondamentaux et au modèle relationnel.",
+        files: [
+          { name: "Support de cours - Introduction.pdf", size: "2,4 Mo" },
+          { name: "Schéma relationnel.png", size: "640 Ko" },
+        ],
+        notions: [
+          {
+            title: "Modèle relationnel",
+            description: "Représentation des données sous forme de relations et de tables.",
+            mastered: true,
+          },
+          {
+            title: "Dépendances fonctionnelles",
+            description: "Relations entre les attributs permettant de structurer un schéma.",
+            mastered: false,
+          },
+        ],
+        analysisStatus: "completed",
+      },
+      {
+        id: "activity-2",
+        title: "Semaine 2 — Premières requêtes SQL",
+        description: "Travail pratique sur la création et l'interrogation de bases de données.",
+        files: [
+          { name: "Exercices SQL.zip", size: "1,8 Mo" },
+        ],
+        notions: [
+          {
+            title: "Requêtes SELECT",
+            description: "Interrogation de tables pour extraire les données recherchées.",
+            mastered: false,
+          },
+          {
+            title: "Filtrage avec WHERE",
+            description: "Restriction des résultats selon des conditions.",
+            mastered: false,
+          },
+        ],
+        analysisStatus: "completed",
+      },
+    ],
     source_url: "https://moodle.unige.ch/enrol/index.php?id=20624",
     mediaserver_url: "https://mediaserver.unige.ch/play/294112"
   },
@@ -74,6 +135,7 @@ export const mockCourses: Course[] = [
       { title: "Choisir une solution adaptée à un problème algorithmique", completed: false },
     ],
     files: [],
+    activities: [],
   },
   {
     id: "course-3",
@@ -90,6 +152,7 @@ export const mockCourses: Course[] = [
       { title: "Appliquer les méthodes d'estimation statistique", completed: false },
     ],
     files: [],
+    activities: [],
   },
   {
     id: "course-4",
@@ -106,6 +169,7 @@ export const mockCourses: Course[] = [
       { title: "Expliquer la gestion des processus et de la mémoire", completed: false },
     ],
     files: [],
+    activities: [],
   },
   {
     id: "course-5",
@@ -122,6 +186,7 @@ export const mockCourses: Course[] = [
       { title: "Optimiser l'accès aux données", completed: false },
     ],
     files: [],
+    activities: [],
   },
   {
     id: "course-6",
@@ -138,5 +203,6 @@ export const mockCourses: Course[] = [
       { title: "Évaluer une interface avec des tests utilisateurs", completed: false },
     ],
     files: [],
+    activities: [],
   },
 ]
