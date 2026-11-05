@@ -1,167 +1,211 @@
 import {
-  Sparkles,
   Calendar,
-  Trophy,
-  Flame,
   ArrowRight,
-  Brain,
+  BookOpen,
+  GraduationCap,
+  Building2,
+  Clock,
+  AlertCircle,
+  FileText,
 } from "lucide-react"
 import { Link } from "react-router"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { mockCourses } from "@/data/courses"
 
 export default function HomePage() {
   const user = {
     name: "Alexandre",
-    streak: 5,
-    xp: 1450,
-    nextLevelXp: 2000,
-    level: 4,
   }
 
-  const todaySchedule = [
-    { time: "08:15 - 10:00", title: "Analyse I — Cours magistral", room: "Auditoire A250" },
-    { time: "10:15 - 12:00", title: "Probabilités & Statistiques — Exercices", room: "Salle 302" },
-    { time: "14:15 - 16:00", title: "Algorithmique — TP Machine", room: "Labo Info 4" },
-  ]
+  // Aperçu des 3 premiers cours (ou cours récents)
+  const recentCourses = mockCourses.slice(0, 3)
 
-  const revisionsDue = [
-    { course: "Analyse I", topic: "Théorème des valeurs intermédiaires", due: "Aujourd'hui", urgency: "high" },
-    { course: "Algorithmique", topic: "Complexité du Tri Fusion O(n log n)", due: "Demain", urgency: "normal" },
-    { course: "Bases de Données", topic: "3ème Forme Normale (3FN)", due: "Dans 2 jours", urgency: "normal" },
+  // Prochaines échéances (rendus de TP, examens, devoirs Moodle)
+  const upcomingDeadlines = [
+    {
+      id: "d1",
+      title: "Rendu Série d'exercices 4 — Continuité & TVI",
+      course: "Analyse I",
+      code: "11X001",
+      dueDate: "Aujourd'hui, 23h59",
+      urgency: "urgent",
+      type: "Devoir",
+    },
+    {
+      id: "d2",
+      title: "TP noté — Arbres binaires de recherche",
+      course: "Algorithmique",
+      code: "12X002",
+      dueDate: "Demain, 14h00",
+      urgency: "soon",
+      type: "TP Machine",
+    },
+    {
+      id: "d3",
+      title: "Quiz hebdomadaire — Dépendances fonctionnelles",
+      course: "Bases de données",
+      code: "13X005",
+      dueDate: "Vendredi 7 nov., 18h00",
+      urgency: "normal",
+      type: "Quiz",
+    },
+    {
+      id: "d4",
+      title: "Examen blanc mi-semestre",
+      course: "Probabilités et statistiques",
+      code: "11X010",
+      dueDate: "Lundi 10 nov., 09h00",
+      urgency: "normal",
+      type: "Examen",
+    },
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Salutation sobre et statut étudiant */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="space-y-8">
+      {/* Salutation sobre */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Bonjour, {user.name} 👋</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Retrouvez vos cours suivis et le suivi de vos prochaines échéances.
+        </p>
+      </div>
+
+      {/* 1er Container : Aperçu des cours (Grid 3 colonnes) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Bonjour, {user.name} 👋</h1>
-            <Badge variant="outline" className="text-xs font-normal">
-              Semestre d'Automne
-            </Badge>
+            <BookOpen className="size-4 text-muted-foreground" />
+            <h2 className="text-lg font-semibold tracking-tight">Mes Cours</h2>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Voici un aperçu de vos priorités d'apprentissage aujourd'hui.
-          </p>
+          <Link
+            to="/courses"
+            className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Tous les cours <ArrowRight className="ml-1 size-3" />
+          </Link>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link
-            to="/tutor"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground h-8 px-3 text-xs font-medium hover:bg-primary/90 transition-colors"
-          >
-            <Sparkles className="size-3.5" />
-            Lancer le Tuteur IA
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recentCourses.map((course) => (
+            <Card
+              key={course.id}
+              size="sm"
+              className="group relative flex flex-col justify-between overflow-hidden pt-0 gap-0 transition-all duration-200 hover:shadow-lg hover:ring-foreground/20 hover:-translate-y-0.5"
+            >
+              {/* Vignette de cours collée tout en haut */}
+              <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                <img
+                  src={course.thumbnailSrc}
+                  alt={course.title}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                {/* Code du cours */}
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                  <Badge className="bg-black/60 backdrop-blur-md text-white font-mono border-white/20 text-xs">
+                    {course.code}
+                  </Badge>
+                </div>
+
+                {/* Faculté / Institution et Enseignants */}
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs gap-2">
+                  <span className="flex items-center gap-1 text-white/90 truncate font-medium text-[11px]">
+                    <Building2 className="size-3.5 shrink-0" />
+                    <span className="truncate">{course.faculty}</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-white/80 shrink-0 text-[11px]">
+                    <GraduationCap className="size-3.5 shrink-0" />
+                    <span>{course.teachers[0]}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Titre et description */}
+              <CardHeader className="pt-3 pb-4 px-4 gap-1">
+                <CardTitle className="text-base font-semibold leading-snug line-clamp-1">
+                  <Link
+                    to={`/courses/${course.id}`}
+                    className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:underline"
+                  >
+                    {course.title}
+                  </Link>
+                </CardTitle>
+                <CardDescription className="line-clamp-2 text-xs leading-relaxed">
+                  {course.description}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
         </div>
       </div>
 
-      {/* Bannière de progression / Gamification minimaliste */}
-      <Card size="sm" className="overflow-hidden bg-muted/20">
-        <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-sm">
-              Niv. {user.level}
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">Étudiant Assidu</span>
-                <span className="text-xs text-muted-foreground">• {user.xp} / {user.nextLevelXp} XP</span>
-              </div>
-              <Progress value={(user.xp / user.nextLevelXp) * 100} className="h-1.5 w-48 md:w-64" />
-            </div>
+      {/* 2ème Container en dessous : Prochaines échéances (Column) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="size-4 text-muted-foreground" />
+            <h2 className="text-lg font-semibold tracking-tight">Prochaines échéances</h2>
           </div>
+          <span className="text-xs text-muted-foreground">
+            {upcomingDeadlines.length} échéances à venir
+          </span>
+        </div>
 
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5 border rounded-lg px-2.5 py-1.5 bg-background">
-              <Flame className="size-3.5 text-orange-500 fill-orange-500" />
-              <span>Série de <strong>{user.streak} jours</strong></span>
-            </div>
-            <div className="flex items-center gap-1.5 border rounded-lg px-2.5 py-1.5 bg-background">
-              <Trophy className="size-3.5 text-amber-500" />
-              <span><strong>350</strong> pièces</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Grid 2 colonnes équilibrée : Planning du jour + Révisions urgentes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Emploi du temps du jour */}
-        <Card size="sm" className="flex flex-col justify-between">
-          <CardHeader className="p-4 pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="size-4 text-muted-foreground" />
-                <CardTitle className="text-base font-semibold">Programme du jour</CardTitle>
-              </div>
-              <Link
-                to="/schedule"
-                className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Voir tout <ArrowRight className="ml-1 size-3" />
-              </Link>
-            </div>
-            <CardDescription className="text-xs">3 séances planifiées</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 pt-1 space-y-2">
-            {todaySchedule.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl border bg-card/60 hover:bg-muted/30 transition-colors text-xs"
-              >
-                <div className="space-y-0.5">
-                  <p className="font-medium text-foreground">{item.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{item.room}</p>
-                </div>
-                <div className="text-right">
-                  <span className="font-mono text-muted-foreground text-[11px]">{item.time}</span>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Révisions à faire (Spaced repetition) */}
-        <Card size="sm" className="flex flex-col justify-between">
-          <CardHeader className="p-4 pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Brain className="size-4 text-muted-foreground" />
-                <CardTitle className="text-base font-semibold">Révisions recommandées</CardTitle>
-              </div>
-              <Link
-                to="/revisions"
-                className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Réviser <ArrowRight className="ml-1 size-3" />
-              </Link>
-            </div>
-            <CardDescription className="text-xs">Basé sur la courbe de l'oubli</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 pt-1 space-y-2">
-            {revisionsDue.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl border bg-card/60 hover:bg-muted/30 transition-colors text-xs"
-              >
-                <div className="space-y-0.5">
-                  <p className="font-medium text-foreground">{item.topic}</p>
-                  <p className="text-[11px] text-muted-foreground">{item.course}</p>
-                </div>
-                <Badge
-                  variant={item.urgency === "high" ? "default" : "secondary"}
-                  className="text-[10px] font-normal"
+        {/* Liste sous forme de colonne verticale aérée et propre */}
+        <div className="space-y-2.5">
+          {upcomingDeadlines.map((item) => (
+            <Card
+              key={item.id}
+              size="sm"
+              className="p-3.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors hover:bg-muted/30"
+            >
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-xl border text-xs ${
+                    item.urgency === "urgent"
+                      ? "border-destructive/30 bg-destructive/10 text-destructive"
+                      : "border-border bg-muted/40 text-muted-foreground"
+                  }`}
                 >
-                  {item.due}
-                </Badge>
+                  {item.urgency === "urgent" ? (
+                    <AlertCircle className="size-4" />
+                  ) : (
+                    <FileText className="size-4" />
+                  )}
+                </div>
+
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-sm text-foreground">
+                      {item.title}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] font-normal">
+                      {item.type}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {item.course} • <span className="font-mono text-[11px]">{item.code}</span>
+                  </p>
+                </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+
+              <div className="flex items-center sm:self-center self-end gap-2 shrink-0">
+                <span
+                  className={`text-xs flex items-center gap-1.5 ${
+                    item.urgency === "urgent"
+                      ? "font-semibold text-destructive"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Clock className="size-3.5" />
+                  {item.dueDate}
+                </span>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )

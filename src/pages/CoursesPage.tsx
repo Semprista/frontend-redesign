@@ -1,132 +1,44 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { Link } from "react-router"
 import {
   Search,
   BookOpen,
   GraduationCap,
   Sparkles,
-  CheckCircle2,
-  Clock,
-  Layers,
+  Building2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-
-export interface Course {
-  id: string
-  code: string
-  title: string
-  instructor: string
-  term: string
-  category: string
-  description: string
-  progress: number
-  totalResources: number
-  completedResources: number
-  thumbnailSrc: string
-}
-
-const mockCourses: Course[] = [
-  {
-    id: "course-1",
-    code: "11X001",
-    title: "Analyse I",
-    instructor: "Prof. Martin",
-    term: "Automne 2026",
-    category: "Mathématiques",
-    description: "Suites, limites, continuité, dérivées et intégrales d'une variable réelle.",
-    progress: 68,
-    totalResources: 18,
-    completedResources: 12,
-    thumbnailSrc: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "course-2",
-    code: "12X002",
-    title: "Algorithmique et Structures de Données",
-    instructor: "Dr. Rossi",
-    term: "Automne 2026",
-    category: "Informatique",
-    description: "Complexité, tris, récursivité, arbres, graphes et tables de hachage.",
-    progress: 85,
-    totalResources: 24,
-    completedResources: 20,
-    thumbnailSrc: "https://images.unsplash.com/photo-1516116211227-bbc04294b05a?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "course-3",
-    code: "11X010",
-    title: "Probabilités et Statistiques",
-    instructor: "Prof. Keller",
-    term: "Automne 2026",
-    category: "Mathématiques",
-    description: "Espaces probabilisés, variables aléatoires discrètes et continues, lois usuelles.",
-    progress: 42,
-    totalResources: 14,
-    completedResources: 6,
-    thumbnailSrc: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "course-4",
-    code: "14X004",
-    title: "Systèmes Informatiques & Architecture",
-    instructor: "Prof. Benali",
-    term: "Automne 2026",
-    category: "Systèmes",
-    description: "Architecture matérielle de von Neumann, assembleur, processus et mémoire virtuelle.",
-    progress: 30,
-    totalResources: 16,
-    completedResources: 5,
-    thumbnailSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "course-5",
-    code: "13X005",
-    title: "Bases de Données Relationnelles",
-    instructor: "Dr. Laurent",
-    term: "Automne 2026",
-    category: "Informatique",
-    description: "Modèle relationnel, formes normales, algèbre relationnelle et requêtes SQL avancées.",
-    progress: 92,
-    totalResources: 12,
-    completedResources: 11,
-    thumbnailSrc: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "course-6",
-    code: "15X008",
-    title: "Interaction Homme-Machine",
-    instructor: "Prof. Dubois",
-    term: "Automne 2026",
-    category: "Design & UX",
-    description: "Principes heuristiques de Nielsen, ergonomie cognitive, prototypage et tests utilisateurs.",
-    progress: 55,
-    totalResources: 15,
-    completedResources: 8,
-    thumbnailSrc: "https://images.unsplash.com/photo-1581291518655-9523c932edcf?w=800&auto=format&fit=crop&q=80",
-  },
-]
+import { mockCourses } from "@/data/courses"
 
 export default function CoursesPage() {
   const [search, setSearch] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("Tous")
+  const [selectedFaculty, setSelectedFaculty] = useState("Toutes")
 
-  const categories = ["Tous", "Informatique", "Mathématiques", "Systèmes", "Design & UX"]
+  // Liste unique des facultés / institutions à partir des données réelles
+  const faculties = useMemo(() => {
+    const list = Array.from(new Set(mockCourses.map((c) => c.faculty)))
+    return ["Toutes", ...list]
+  }, [])
 
   const filteredCourses = mockCourses.filter((course) => {
+    const term = search.toLowerCase()
     const matchSearch =
-      course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.code.toLowerCase().includes(search.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(search.toLowerCase())
-    const matchCat = selectedCategory === "Tous" || course.category === selectedCategory
-    return matchSearch && matchCat
+      course.title.toLowerCase().includes(term) ||
+      course.code.toLowerCase().includes(term) ||
+      course.faculty.toLowerCase().includes(term) ||
+      course.teachers.some((t) => t.toLowerCase().includes(term))
+
+    const matchFaculty = selectedFaculty === "Toutes" || course.faculty === selectedFaculty
+
+    return matchSearch && matchFaculty
   })
 
   return (
@@ -135,14 +47,11 @@ export default function CoursesPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Vue d'ensemble des cours</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Mes cours</h1>
             <Badge variant="outline" className="font-normal text-muted-foreground">
-              Automne 2026
+              {mockCourses.length} cours disponibles
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            Consultez vos cours UNIGE synchronisés, suivez votre avancement et accédez directement aux ressources.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -153,34 +62,34 @@ export default function CoursesPage() {
         </div>
       </div>
 
-      {/* Barre de recherche et filtres par catégorie */}
+      {/* Barre de recherche et filtres par Faculté / Institution */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher par nom, code, enseignant..."
+            placeholder="Rechercher par titre, code, enseignant..."
             className="pl-9"
           />
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          {categories.map((cat) => (
+          {faculties.map((fac) => (
             <Button
-              key={cat}
-              variant={selectedCategory === cat ? "secondary" : "ghost"}
+              key={fac}
+              variant={selectedFaculty === fac ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setSelectedCategory(cat)}
-              className="text-xs h-8"
+              onClick={() => setSelectedFaculty(fac)}
+              className="text-xs h-8 font-normal"
             >
-              {cat}
+              {fac}
             </Button>
           ))}
         </div>
       </div>
 
-      {/* Grille responsive : 1 col sur mobile, 2 col sur tablette, 3 col sur desktop */}
+      {/* Grille responsive : 1 col mobile, 2 col tablette, 3 col desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <Card
@@ -188,7 +97,7 @@ export default function CoursesPage() {
             size="sm"
             className="group relative flex flex-col justify-between overflow-hidden pt-0 gap-0 transition-all duration-200 hover:shadow-lg hover:ring-foreground/20 hover:-translate-y-0.5"
           >
-            {/* Vignette couverture Moodle collée tout en haut */}
+            {/* Vignette de cours collée tout en haut */}
             <div className="relative aspect-video w-full overflow-hidden bg-muted">
               <img
                 src={course.thumbnailSrc}
@@ -197,63 +106,40 @@ export default function CoursesPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
-              {/* Code et Catégorie en superposition */}
+              {/* Code du cours (6 caractères) en badge supérieur */}
               <div className="absolute top-3 left-3 flex items-center gap-2">
                 <Badge className="bg-black/60 backdrop-blur-md text-white font-mono border-white/20 text-xs">
                   {course.code}
                 </Badge>
-                <Badge variant="secondary" className="bg-background/80 backdrop-blur-md text-xs font-normal">
-                  {course.category}
-                </Badge>
               </div>
 
-              {/* Semestre & Enseignant en bas de vignette */}
-              <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
-                <span className="font-medium text-white/90">{course.term}</span>
-                <span className="flex items-center gap-1 text-white/80">
-                  <GraduationCap className="size-3.5" />
-                  {course.instructor}
+              {/* Faculté / Institution et Enseignants en bas de vignette */}
+              <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs gap-2">
+                <span className="flex items-center gap-1 text-white/90 truncate font-medium text-[11px]">
+                  <Building2 className="size-3.5 shrink-0" />
+                  <span className="truncate">{course.faculty}</span>
+                </span>
+                <span className="flex items-center gap-1 text-white/80 shrink-0 text-[11px]">
+                  <GraduationCap className="size-3.5 shrink-0" />
+                  <span>{course.teachers.join(", ")}</span>
                 </span>
               </div>
             </div>
 
-            {/* Titre et description compacts */}
-            <CardHeader className="pt-3 pb-2 px-4 gap-1">
+            {/* Titre et description */}
+            <CardHeader className="pt-3 pb-4 px-4 gap-1">
               <CardTitle className="text-base font-semibold leading-snug line-clamp-1">
-                <a
-                  href={`#course-${course.id}`}
+                <Link
+                  to={`/courses/${course.id}`}
                   className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:underline"
                 >
                   {course.title}
-                </a>
+                </Link>
               </CardTitle>
               <CardDescription className="line-clamp-2 text-xs leading-relaxed">
                 {course.description}
               </CardDescription>
             </CardHeader>
-
-            {/* Progression & Métriques resserrées */}
-            <div className="px-4 pt-2 pb-4 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground flex items-center gap-1.5 text-[12px]">
-                  <CheckCircle2 className="size-3.5 text-primary" />
-                  Progression
-                </span>
-                <span className="font-semibold text-foreground text-xs">{course.progress}%</span>
-              </div>
-              <Progress value={course.progress} className="h-1.5" />
-
-              <div className="flex items-center justify-between pt-0.5 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Layers className="size-3" />
-                  {course.completedResources} / {course.totalResources} ressources
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3" />
-                  Mis à jour hier
-                </span>
-              </div>
-            </div>
           </Card>
         ))}
       </div>
@@ -271,7 +157,7 @@ export default function CoursesPage() {
             className="mt-4"
             onClick={() => {
               setSearch("")
-              setSelectedCategory("Tous")
+              setSelectedFaculty("Toutes")
             }}
           >
             Réinitialiser les filtres

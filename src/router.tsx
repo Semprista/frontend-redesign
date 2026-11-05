@@ -3,6 +3,7 @@ import RootLayout from "@/layouts/RootLayout"
 import HomePage from "@/pages/HomePage"
 import TutorPage from "@/pages/TutorPage"
 import CoursesPage from "@/pages/CoursesPage"
+import CourseDetailPage from "@/pages/CourseDetailPage"
 import EvaluationsPage from "@/pages/EvaluationsPage"
 import RevisionsPage from "@/pages/RevisionsPage"
 import SchedulePage from "@/pages/SchedulePage"
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "tutor", element: <TutorPage /> },
       { path: "courses", element: <CoursesPage /> },
+      { path: "courses/:courseId", element: <CourseDetailPage /> },
       { path: "evaluations", element: <EvaluationsPage /> },
       { path: "revisions", element: <RevisionsPage /> },
       { path: "schedule", element: <SchedulePage /> },
