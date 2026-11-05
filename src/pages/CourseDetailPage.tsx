@@ -1,12 +1,14 @@
 import { useParams, Link } from "react-router"
 import {
   ArrowLeft,
+  ArrowUpRightIcon,
   Building2,
   GraduationCap,
   Sparkles,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { mockCourses } from "@/data/courses"
+import { courseSource, mockCourses } from "@/data/courses"
+import { Button } from "@/components/ui/button"
 
 export default function CourseDetailPage() {
   const { courseId } = useParams()
@@ -30,7 +32,7 @@ export default function CourseDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Bouton de retour */}
       <div>
         <Link
@@ -78,6 +80,29 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
+      {
+        course.source === courseSource.MOODLE && (
+          <div className="space-x-2 flex justify-end w-full">
+            <a href={course.source_url}>
+              <Button>
+                <span>Moodle</span>
+                <ArrowUpRightIcon />
+              </Button>
+            </a>
+            {
+              course.mediaserver_url && (
+                <a href={course.mediaserver_url}>
+                  <Button>
+                    <span>Mediaserver</span>
+                    <ArrowUpRightIcon />
+                  </Button>
+                </a>
+              )
+            }
+          </div>
+        )
+      }
+
       {/* Descriptif & zone prête à accueillir le contenu détaillé */}
       <div className="space-y-4">
         <div>
@@ -93,6 +118,6 @@ export default function CourseDetailPage() {
           En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
         </div>
       </div>
-    </div>
+    </div >
   )
 }
