@@ -81,32 +81,31 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
-      {
-        course.source === courseSource.MOODLE && (
-          <div className="space-x-2 flex justify-end w-full">
-            <a href={course.source_url}>
-              <Button>
-                <span>Moodle</span>
-                <ArrowUpRightIcon />
-              </Button>
-            </a>
-            {
-              course.mediaserver_url && (
-                <a href={course.mediaserver_url}>
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <div className="min-w-0 flex-1 space-y-4">
+          {
+            course.source === courseSource.MOODLE && (
+              <div className="space-x-2 flex justify-end w-full">
+                <a href={course.source_url}>
                   <Button>
-                    <span>Mediaserver</span>
+                    <span>Moodle</span>
                     <ArrowUpRightIcon />
                   </Button>
                 </a>
-              )
-            }
-          </div>
-        )
-      }
+                {
+                  course.mediaserver_url && (
+                    <a href={course.mediaserver_url}>
+                      <Button>
+                        <span>Mediaserver</span>
+                        <ArrowUpRightIcon />
+                      </Button>
+                    </a>
+                  )
+                }
+              </div>
+            )
+          }
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        {/* Descriptif & zone prête à accueillir le contenu détaillé */}
-        <div className="space-y-4">
           <div>
             <h2 className="text-base font-semibold">Présentation du cours</h2>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
@@ -120,23 +119,30 @@ export default function CourseDetailPage() {
             En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
           </div>
         </div>
-
-        <Card className="border bg-background shadow-none ring-0">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">Objectifs du cours</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              {course.objectives.map((objective) => (
-                <li key={objective} className="flex gap-2.5 leading-relaxed">
-                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{objective}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="w-full md:w-80 md:shrink-0">
+          <Card className="border bg-background shadow-none ring-0">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Objectifs du cours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                {course.objectives.map((objective) => (
+                  <li key={objective.title} className="flex gap-2.5 leading-relaxed">
+                    <input
+                      type="checkbox"
+                      checked={objective.completed}
+                      readOnly
+                      aria-label={objective.title}
+                      className="mt-1 size-4 shrink-0 accent-primary"
+                    />
+                    <span>{objective.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </div>
-    </div >
+      </div>
+    </div>
   )
 }
