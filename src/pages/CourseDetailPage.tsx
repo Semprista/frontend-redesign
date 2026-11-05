@@ -6,6 +6,7 @@ import {
   Building2,
   FileText,
   GraduationCap,
+  KanbanSquare,
   Plus,
   Sparkles,
 } from "lucide-react"
@@ -86,6 +87,84 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <KanbanSquare className="size-4 text-muted-foreground" />
+          <h2 className="text-base font-semibold">Vue d’ensemble</h2>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="min-w-0 bg-muted/20 shadow-none">
+            <CardHeader className="border-b pb-3">
+              <CardTitle className="text-sm font-semibold">À revoir</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 pt-4">
+              {activities.flatMap((activity) =>
+                activity.notions.filter((notion) => !notion.mastered).map((notion) => (
+                  <Link
+                    key={`${activity.id}-${notion.title}`}
+                    to={`/courses/${course.id}/activities/${activity.id}`}
+                    className="block rounded-xl border bg-background p-3 transition-colors hover:bg-muted/50"
+                  >
+                    <p className="text-sm font-medium">{notion.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{activity.title}</p>
+                  </Link>
+                ))
+              )}
+              {activities.every((activity) => activity.notions.every((notion) => notion.mastered)) && (
+                <p className="text-xs text-muted-foreground">Aucune notion à revoir.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="min-w-0 bg-muted/20 shadow-none">
+            <CardHeader className="border-b pb-3">
+              <CardTitle className="text-sm font-semibold">À rendre</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 pt-4">
+              {course.deadlines.length > 0 ? (
+                course.deadlines.map((deadline) => (
+                  <div key={deadline.id} className="rounded-xl border bg-background p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium">{deadline.title}</p>
+                      <Badge variant="outline" className="shrink-0 text-[10px] font-normal">{deadline.type}</Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{deadline.dueDate}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground">Aucune échéance à venir.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="min-w-0 bg-muted/20 shadow-none">
+            <CardHeader className="border-b pb-3">
+              <CardTitle className="text-sm font-semibold">En cours</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 pt-4">
+              {activities.filter((activity) => activity.notions.some((notion) => !notion.mastered) || activity.analysisStatus === "analyzing").length > 0 ? (
+                activities
+                  .filter((activity) => activity.notions.some((notion) => !notion.mastered) || activity.analysisStatus === "analyzing")
+                  .map((activity) => (
+                    <Link
+                      key={activity.id}
+                      to={`/courses/${course.id}/activities/${activity.id}`}
+                      className="block rounded-xl border bg-background p-3 transition-colors hover:bg-muted/50"
+                    >
+                      <p className="text-sm font-medium">{activity.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {activity.analysisStatus === "analyzing" ? "Analyse en cours" : "Notions à travailler"}
+                      </p>
+                    </Link>
+                  ))
+              ) : (
+                <p className="text-xs text-muted-foreground">Aucune activité incomplète.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="min-w-0 flex-1 space-y-3">

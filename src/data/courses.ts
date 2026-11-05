@@ -35,6 +35,13 @@ export interface CourseActivity {
   analysisStatus: "analyzing" | "completed"
 }
 
+export interface CourseDeadline {
+  id: string
+  title: string
+  dueDate: string
+  type: string
+}
+
 export interface Course {
   id: string
   source: string,
@@ -47,6 +54,7 @@ export interface Course {
   objectives: CourseObjective[]
   files: CourseFile[]
   activities: CourseActivity[]
+  deadlines: CourseDeadline[]
   source_url?: string,
   mediaserver_url?: string
 }
@@ -117,6 +125,10 @@ export const mockCourses: Course[] = [
         analysisStatus: "completed",
       },
     ],
+    deadlines: [
+      { id: "deadline-1", title: "Rendu des exercices SQL", dueDate: "Vendredi 7 novembre", type: "Devoir" },
+      { id: "deadline-2", title: "Quiz sur le modèle relationnel", dueDate: "Lundi 10 novembre", type: "Quiz" },
+    ],
     source_url: "https://moodle.unige.ch/enrol/index.php?id=20624",
     mediaserver_url: "https://mediaserver.unige.ch/play/294112"
   },
@@ -136,6 +148,7 @@ export const mockCourses: Course[] = [
     ],
     files: [],
     activities: [],
+    deadlines: [],
   },
   {
     id: "course-3",
@@ -153,6 +166,7 @@ export const mockCourses: Course[] = [
     ],
     files: [],
     activities: [],
+    deadlines: [],
   },
   {
     id: "course-4",
@@ -170,6 +184,7 @@ export const mockCourses: Course[] = [
     ],
     files: [],
     activities: [],
+    deadlines: [],
   },
   {
     id: "course-5",
@@ -187,6 +202,7 @@ export const mockCourses: Course[] = [
     ],
     files: [],
     activities: [],
+    deadlines: [],
   },
   {
     id: "course-6",
@@ -204,5 +220,6 @@ export const mockCourses: Course[] = [
     ],
     files: [],
     activities: [],
+    deadlines: [],
   },
 ]
