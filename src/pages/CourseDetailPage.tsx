@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { courseSource, mockCourses } from "@/data/courses"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function CourseDetailPage() {
   const { courseId } = useParams()
@@ -103,21 +104,39 @@ export default function CourseDetailPage() {
         )
       }
 
-      {/* Descriptif & zone prête à accueillir le contenu détaillé */}
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-base font-semibold">Présentation du cours</h2>
-          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-            {course.description}
-          </p>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        {/* Descriptif & zone prête à accueillir le contenu détaillé */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-base font-semibold">Présentation du cours</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              {course.description}
+            </p>
+          </div>
+
+          {/* Espace prêt à être enrichi selon tes instructions */}
+          <div className="p-8 border border-dashed rounded-2xl text-center text-xs text-muted-foreground bg-muted/10">
+            <Sparkles className="size-5 mx-auto mb-2 text-muted-foreground/60" />
+            En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
+          </div>
         </div>
 
-        {/* Espace prêt à être enrichi selon tes instructions */}
-        <div className="p-8 border border-dashed rounded-2xl text-center text-xs text-muted-foreground bg-muted/10">
-          <Sparkles className="size-5 mx-auto mb-2 text-muted-foreground/60" />
-          En attente de tes instructions pour le contenu détaillé de ce cours (chapitres, ressources, devoirs, etc.).
+        <Card className="border bg-background shadow-none ring-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Objectifs du cours</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              {course.objectives.map((objective) => (
+                <li key={objective} className="flex gap-2.5 leading-relaxed">
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                  <span>{objective}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
         </div>
-      </div>
     </div >
   )
 }

@@ -19,6 +19,7 @@ export interface Course {
   teachers: string[] // Le ou les enseignants
   thumbnailSrc: string
   description: string,
+  objectives: string[]
   source_url?: string,
   mediaserver_url?: string
 }
@@ -33,6 +34,12 @@ export const mockCourses: Course[] = [
     teachers: ["Jolita Ralyte"],
     thumbnailSrc: imgUrl,
     description: "L'objectifs du cours - savoir créer, modifier et interroger des bases de données relationnelles.\nLe cours présentera les fondements des bases de données relationnelles:\nModèle de données rationnel: concepts de base, dépendances fonctionnelles, formes normales et normalisation\n- Algèbre relationnelle\n- SQL: création, modification et interrogation des bases de données\n - Transactions et la gestion de la concurrence ",
+    objectives: [
+      "Comprendre les fondements des bases de données relationnelles",
+      "Modéliser des données avec l'algèbre relationnelle",
+      "Créer, modifier et interroger une base de données en SQL",
+      "Gérer les transactions et la concurrence",
+    ],
     source_url: "https://moodle.unige.ch/enrol/index.php?id=20624",
     mediaserver_url: "https://mediaserver.unige.ch/play/294112"
   },
@@ -45,6 +52,11 @@ export const mockCourses: Course[] = [
     teachers: ["Dr. Rossi"],
     thumbnailSrc: img1Url,
     description: "Complexité temporelle, tris, récursivité, arbres, graphes et tables de hachage.",
+    objectives: [
+      "Analyser la complexité d'un algorithme",
+      "Implémenter des structures de données classiques",
+      "Choisir une solution adaptée à un problème algorithmique",
+    ],
   },
   {
     id: "course-3",
@@ -55,6 +67,11 @@ export const mockCourses: Course[] = [
     teachers: ["Prof. Keller"],
     thumbnailSrc: img2Url,
     description: "Espaces probabilisés, variables aléatoires discrètes et continues, lois usuelles et estimation.",
+    objectives: [
+      "Maîtriser les concepts fondamentaux des probabilités",
+      "Modéliser des phénomènes avec des variables aléatoires",
+      "Appliquer les méthodes d'estimation statistique",
+    ],
   },
   {
     id: "course-4",
@@ -65,6 +82,11 @@ export const mockCourses: Course[] = [
     teachers: ["Prof. Benali", "Dr. Meyer"],
     thumbnailSrc: img3Url,
     description: "Architecture matérielle de von Neumann, assembleur, processus et gestion de la mémoire virtuelle.",
+    objectives: [
+      "Comprendre l'architecture d'un système informatique",
+      "Écrire et lire des programmes en assembleur",
+      "Expliquer la gestion des processus et de la mémoire",
+    ],
   },
   {
     id: "course-5",
@@ -75,6 +97,11 @@ export const mockCourses: Course[] = [
     teachers: ["Dr. Laurent"],
     thumbnailSrc: img4Url,
     description: "Modèle relationnel, normalisation, algèbre relationnelle et requêtes SQL avancées.",
+    objectives: [
+      "Concevoir un schéma relationnel normalisé",
+      "Écrire des requêtes SQL avancées",
+      "Optimiser l'accès aux données",
+    ],
   },
   {
     id: "course-6",
@@ -85,5 +112,10 @@ export const mockCourses: Course[] = [
     teachers: ["Prof. Dubois"],
     thumbnailSrc: img5Url,
     description: "Principes heuristiques de Nielsen, ergonomie cognitive, prototypage et tests utilisateurs.",
+    objectives: [
+      "Appliquer les principes d'ergonomie et d'utilisabilité",
+      "Concevoir des prototypes interactifs",
+      "Évaluer une interface avec des tests utilisateurs",
+    ],
   },
 ]
