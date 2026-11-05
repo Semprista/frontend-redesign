@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { ArrowRight, CheckCircle2, Circle, FileText, KanbanSquare, Plus } from "lucide-react"
+import { ArrowRight, CheckCircle2, Circle, FileText, Plus } from "lucide-react"
 import { Link } from "react-router"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

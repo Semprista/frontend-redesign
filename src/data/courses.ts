@@ -20,10 +20,18 @@ export interface CourseFile {
   size: string
 }
 
+export interface NotionQuiz {
+  question: string
+  options: string[]
+  correctOption: number
+}
+
 export interface ActivityNotion {
   objectiveId: string
   title: string
   description: string
+  summary?: string
+  quiz?: NotionQuiz
   mastered: boolean
 }
 
@@ -95,12 +103,24 @@ export const mockCourses: Course[] = [
             objectiveId: "objective-1",
             title: "Modèle relationnel",
             description: "Représentation des données sous forme de relations et de tables.",
+            summary: "Le modèle relationnel organise les données dans des tables appelées relations. Chaque ligne représente une occurrence et chaque colonne décrit un attribut. Les relations entre les tables s'appuient sur des clés, ce qui permet de limiter la duplication et de garantir la cohérence des données.",
+            quiz: {
+              question: "Comment les données sont-elles principalement organisées dans le modèle relationnel ?",
+              options: ["Dans des tables reliées entre elles", "Dans un seul document texte", "Dans une arborescence de fichiers"],
+              correctOption: 0,
+            },
             mastered: true,
           },
           {
             objectiveId: "objective-2",
             title: "Dépendances fonctionnelles",
             description: "Relations entre les attributs permettant de structurer un schéma.",
+            summary: "Une dépendance fonctionnelle décrit une contrainte entre deux ensembles d'attributs. Lorsque la valeur d'un attribut déterminant est connue, la valeur de l'attribut dépendant est déterminée de manière unique. Cette notion aide à repérer les redondances et à construire un schéma correctement normalisé.",
+            quiz: {
+              question: "Que signifie X → Y dans une dépendance fonctionnelle ?",
+              options: ["X détermine de façon unique la valeur de Y", "X et Y doivent toujours être identiques", "Y détermine toujours plusieurs valeurs de X"],
+              correctOption: 0,
+            },
             mastered: false,
           },
         ],
@@ -118,12 +138,24 @@ export const mockCourses: Course[] = [
             objectiveId: "objective-3",
             title: "Requêtes SELECT",
             description: "Interrogation de tables pour extraire les données recherchées.",
+            summary: "L'instruction SELECT permet de lire des données dans une ou plusieurs tables. Elle peut être combinée avec FROM pour choisir la source, WHERE pour filtrer les lignes et ORDER BY pour trier les résultats. Elle ne modifie pas les données interrogées.",
+            quiz: {
+              question: "Quelle instruction SQL sert à lire des données ?",
+              options: ["SELECT", "UPDATE", "DELETE"],
+              correctOption: 0,
+            },
             mastered: false,
           },
           {
             objectiveId: "objective-3",
             title: "Filtrage avec WHERE",
             description: "Restriction des résultats selon des conditions.",
+            summary: "La clause WHERE réduit le résultat d'une requête aux lignes qui respectent une condition. Elle peut comparer des valeurs, combiner plusieurs critères avec AND ou OR et utiliser des opérateurs comme =, < ou LIKE. Le filtrage est effectué avant l'affichage des résultats.",
+            quiz: {
+              question: "Quel est le rôle principal de la clause WHERE ?",
+              options: ["Filtrer les lignes selon une condition", "Créer une nouvelle table", "Trier les colonnes par ordre alphabétique"],
+              correctOption: 0,
+            },
             mastered: false,
           },
         ],
