@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Link, useParams } from "react-router"
-import { ArrowLeft, CheckCircle2, Circle, FileText, Lightbulb, LoaderCircle, WandSparkles } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Circle, FileText, Lightbulb, LoaderCircle, NotebookPen, WandSparkles } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { mockCourses } from "@/data/courses"
+import { ActivityLearningTools } from "@/components/course/CourseLearningTools"
 
 export default function ActivityDetailPage() {
   const { courseId, activityId } = useParams()
@@ -17,38 +18,40 @@ export default function ActivityDetailPage() {
   const sourceActivity = course?.activities.find((item) => item.id === activityId)
   const activity = storedActivity
     ? {
-        ...storedActivity,
-        notions: storedActivity.notions.map((notion) => ({
-          ...sourceActivity?.notions.find((sourceNotion) => sourceNotion.title === notion.title),
-          ...notion,
-        })),
-      }
+      ...storedActivity,
+      notions: storedActivity.notions.map((notion) => ({
+        ...sourceActivity?.notions.find((sourceNotion) => sourceNotion.title === notion.title),
+        ...notion,
+      })),
+    }
     : undefined
-  const [generalQuizAnswers, setGeneralQuizAnswers] = useState<Record<string, number>>({})
-  const [generalQuizScore, setGeneralQuizScore] = useState<number | null>(null)
   const [generatedExercise, setGeneratedExercise] = useState<{
     title: string
-    instruction: string
-    hint: string
+    statement: string
+    expected_skills: string[]
+    hint: string | null
+    solution: string | null
     sources: string[]
   } | null>(null)
   const [exercisePreferences, setExercisePreferences] = useState("")
   const [exerciseDifficulty, setExerciseDifficulty] = useState("Intermédiaire")
   const [exerciseFormat, setExerciseFormat] = useState("Problème guidé")
   const [exerciseSupport, setExerciseSupport] = useState("Avec une piste")
+  const [isGeneratingExercise, setIsGeneratingExercise] = useState(false)
+  const [exerciseError, setExerciseError] = useState<string | null>(null)
 
   const toggleNotion = (notionTitle: string) => {
     setActivities((current) =>
       current.map((item) =>
         item.id === activityId
           ? {
-              ...item,
-              notions: item.notions.map((notion) =>
-                notion.title === notionTitle
-                  ? { ...notion, mastered: !notion.mastered }
-                  : notion
-              ),
-            }
+            ...item,
+            notions: item.notions.map((notion) =>
+              notion.title === notionTitle
+                ? { ...notion, mastered: !notion.mastered }
+                : notion
+            ),
+          }
           : item
       )
     )
@@ -65,112 +68,33 @@ export default function ActivityDetailPage() {
     )
   }
 
-  const generateExercise = () => {
+  const generateExercise = async () => {
     const notionTitles = activity.notions.map((notion) => notion.title)
-    const focus = notionTitles.join(" et ") || "les notions de l'activité"
-    const preferences = exercisePreferences.trim()
-    const support = exerciseSupport === "Sans aide"
-      ? "sans aide intermédiaire"
-      : exerciseSupport === "Correction détaillée"
-        ? "avec une correction détaillée à consulter après votre tentative"
-        : "avec une piste progressive à consulter si nécessaire"
-    const prompt = `Tu es un tuteur pédagogique. Génère un exercice personnalisé à partir des notions suivantes :
-${activity.notions.map((notion) => `- ${notion.title} : ${notion.summary ?? notion.description}`).join("\n")}
+    setIsGeneratingExercise(true)
+    setExerciseError(null)
 
-Contraintes :
-- Niveau : ${exerciseDifficulty}
-- Format : ${exerciseFormat}
-- Accompagnement : ${exerciseSupport}
-- Préférences de l'étudiant : ${preferences || "Aucune préférence supplémentaire"}
-
-L'exercice doit être cohérent avec ces notions, suffisamment précis pour être réalisé, et ne doit pas introduire de concept hors sujet. Retourne un énoncé clair${exerciseSupport === "Correction détaillée" ? ", puis une correction détaillée séparée" : exerciseSupport === "Avec une piste" ? " et une piste progressive séparée" : ""}.`
-    console.log("[Exercice personnalisé] Prompt envoyé à l'IA :", prompt)
-
-    setGeneratedExercise({
-      title: `${exerciseFormat} · ${exerciseDifficulty}`,
-      instruction: `En vous appuyant uniquement sur « ${focus} », réalisez un ${exerciseFormat.toLowerCase()} de niveau ${exerciseDifficulty.toLowerCase()}. ${preferences || "Construisez un exemple concret et expliquez vos choix."} Travaillez ${support}.`,
-      hint: `Commencez par isoler le rôle de chaque notion dans votre exemple. Vérifiez ensuite que votre réponse mobilise bien ${notionTitles.slice(1).join(" et ") || "la notion étudiée"} et justifiez chaque étape avec le vocabulaire du cours.`,
-      sources: notionTitles,
-    })
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 700))
+      const mainNotion = notionTitles[0] ?? "les notions de cette activité"
+      const preference = exercisePreferences.trim()
+      setGeneratedExercise({
+        title: `${exerciseFormat} — ${mainNotion}`,
+        statement: `À partir de la notion « ${mainNotion} », proposez une solution de niveau ${exerciseDifficulty.toLowerCase()}. Expliquez votre raisonnement étape par étape et justifiez vos choix.${preference ? ` Consigne ajoutée : ${preference}` : ""}`,
+        expected_skills: notionTitles.length > 0 ? notionTitles : ["Compréhension du cours", "Raisonnement"],
+        hint: exerciseSupport === "Sans aide"
+          ? null
+          : `Commencez par identifier la notion mobilisée et rappelez sa définition avant de résoudre le problème.`,
+        solution: exerciseSupport === "Correction détaillée"
+          ? `Une réponse attendue mobilise ${mainNotion}, explicite les étapes du raisonnement et vérifie le résultat obtenu.`
+          : null,
+        sources: notionTitles,
+      })
+    } catch (error) {
+      setExerciseError(error instanceof Error ? error.message : "Une erreur inconnue est survenue.")
+    } finally {
+      setIsGeneratingExercise(false)
+    }
   }
-
-  const generalQuiz = activity.analysisStatus !== "analyzing" && activity.notions.some((notion) => notion.quiz) ? (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault()
-        const quizNotions = activity.notions.filter((notion) => notion.quiz)
-        const score = quizNotions.reduce(
-          (total, notion) =>
-            total + (generalQuizAnswers[notion.title] === notion.quiz?.correctOption ? 1 : 0),
-          0
-        )
-        setGeneralQuizScore(score)
-        setActivities((current) =>
-          current.map((item) =>
-            item.id === activityId
-              ? {
-                  ...item,
-                  notions: item.notions.map((notion) => {
-                    const quiz = notion.quiz
-                    const isCorrect = quiz
-                      ? generalQuizAnswers[notion.title] === quiz.correctOption
-                      : false
-                    return isCorrect ? { ...notion, mastered: true } : notion
-                  }),
-                }
-              : item
-          )
-        )
-      }}
-      className="space-y-5 rounded-2xl border bg-muted/20 p-5"
-    >
-      <div>
-        <h2 className="text-lg font-semibold">Quiz général</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Répondez à une question sur chaque notion pour valider l’ensemble de l’activité.
-        </p>
-      </div>
-      <details className="group">
-        <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl border bg-background px-4 py-3 text-sm font-medium marker:hidden">
-          <span>{generalQuizScore === null ? "Commencer le quiz" : "Revoir le quiz"}</span>
-          <span className="text-muted-foreground transition-transform group-open:rotate-180">⌄</span>
-        </summary>
-        <div className="mt-5 space-y-5">
-          {activity.notions.filter((notion) => notion.quiz).map((notion, notionIndex) => (
-            <fieldset key={notion.title} className="space-y-3">
-              <legend className="text-sm font-medium">
-                {notionIndex + 1}. {notion.quiz?.question}
-              </legend>
-              <div className="space-y-2">
-                {notion.quiz?.options.map((option, optionIndex) => (
-                  <label key={option} className="flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted">
-                    <input
-                      type="radio"
-                      name={`general-quiz-${notion.title}`}
-                      value={optionIndex}
-                      checked={generalQuizAnswers[notion.title] === optionIndex}
-                      onChange={() => setGeneralQuizAnswers((current) => ({ ...current, [notion.title]: optionIndex }))}
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          ))}
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-              Valider le quiz général
-            </button>
-            {generalQuizScore !== null && (
-              <span className="text-sm font-medium text-muted-foreground">
-                Score : {generalQuizScore}/{activity.notions.filter((notion) => notion.quiz).length}
-              </span>
-            )}
-          </div>
-        </div>
-      </details>
-    </form>
-  ) : null
 
   return (
     <div className="space-y-5">
@@ -189,7 +113,6 @@ L'exercice doit être cohérent avec ces notions, suffisamment précis pour êtr
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <aside className="order-2 space-y-6 lg:sticky lg:top-6">
-          {generalQuiz}
           <Card className="border bg-background shadow-none ring-0">
             <CardHeader>
               <CardTitle className="text-base font-semibold">Notions abordées</CardTitle>
@@ -280,63 +203,89 @@ L'exercice doit être cohérent avec ces notions, suffisamment précis pour êtr
               ))}
             </div>
           )}
-          <section className="mt-10 rounded-2xl border bg-muted/20 p-5">
-            <div className="flex items-center gap-2">
-              <WandSparkles className="size-4 text-primary" />
-              <h2 className="text-lg font-semibold">S'entraîner</h2>
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Créez un exercice ancré dans les notions de cette activité, comme dans un espace d’étude guidé.
-            </p>
-            <div className="mt-5 space-y-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Niveau</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {["Découverte", "Intermédiaire", "Défi"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setExerciseDifficulty(option)}
-                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${exerciseDifficulty === option ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+        </section>
+      </div>
+
+      <ActivityLearningTools
+        activity={activity}
+        courseId={course.id}
+        onNotionValidated={(notionTitle) => {
+          setActivities((current) =>
+            current.map((item) =>
+              item.id === activityId
+                ? {
+                  ...item,
+                  notions: item.notions.map((notion) =>
+                    notion.title === notionTitle ? { ...notion, mastered: true } : notion
+                  ),
+                }
+                : item
+            )
+          )
+        }}
+        exercisePanel={
+          <>
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <NotebookPen className="size-4" />
+                </div>
+                <div>
+                  <CardTitle>Générer un exercice personnalisé</CardTitle>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Format</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {["Problème guidé", "Cas concret", "Question d’examen"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setExerciseFormat(option)}
-                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${exerciseFormat === option ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Niveau</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Découverte", "Intermédiaire", "Défi"].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setExerciseDifficulty(option)}
+                        className={`rounded-xl border px-3 py-2 text-xs transition-colors ${exerciseDifficulty === option ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background hover:bg-muted"}`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Type d’exercice</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Problème guidé", "Cas concret", "Question d’examen"].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setExerciseFormat(option)}
+                        className={`rounded-xl border px-3 py-2 text-xs transition-colors ${exerciseFormat === option ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background hover:bg-muted"}`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Aide</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Avec une piste", "Correction détaillée", "Sans aide"].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setExerciseSupport(option)}
+                        className={`rounded-xl border px-3 py-2 text-xs transition-colors ${exerciseSupport === option ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background hover:bg-muted"}`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Accompagnement</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {["Avec une piste", "Correction détaillée", "Sans aide"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setExerciseSupport(option)}
-                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${exerciseSupport === option ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
+              <div className="space-y-2">
                 <label htmlFor="exercise-preferences" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Consigne personnalisée <span className="normal-case">(facultatif)</span>
+                  Consigne personnalisée <span className="normal-case font-normal">(facultatif)</span>
                 </label>
                 <textarea
                   id="exercise-preferences"
@@ -347,37 +296,53 @@ L'exercice doit être cohérent avec ces notions, suffisamment précis pour êtr
                   className="mt-2 w-full resize-y rounded-xl border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={generateExercise}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <WandSparkles className="size-3.5" /> {generatedExercise ? "Régénérer l'exercice" : "Générer l'exercice"}
-            </button>
-            {generatedExercise && (
-              <div className="mt-5 space-y-4 rounded-xl border bg-background p-4">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Exercice généré</p>
-                  <h3 className="mt-1 font-medium">{generatedExercise.title}</h3>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {generatedExercise.sources.map((source) => (
-                    <Badge key={source} variant="secondary" className="font-normal">{source}</Badge>
-                  ))}
-                </div>
-                <p className="text-sm leading-relaxed">{generatedExercise.instruction}</p>
-                <details>
-                  <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                    <Lightbulb className="size-4 text-primary" /> Afficher une piste
-                  </summary>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{generatedExercise.hint}</p>
-                </details>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+                <p className="text-xs text-muted-foreground">Les paramètres seront pris en compte par le tuteur IA.</p>
+                <button
+                  type="button"
+                  onClick={generateExercise}
+                  disabled={isGeneratingExercise}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                >
+                  <WandSparkles className="size-3.5" /> {isGeneratingExercise ? "Génération en cours..." : generatedExercise ? "Régénérer l'exercice" : "Générer l'exercice"}
+                </button>
               </div>
-            )}
-          </section>
-        </section>
-      </div>
+              {exerciseError && <p className="text-sm text-destructive">{exerciseError}</p>}
+              {generatedExercise && (
+                <div className="space-y-4 rounded-2xl border bg-muted/30 p-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Exercice généré</p>
+                    <h3 className="mt-1 font-medium">{generatedExercise.title}</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {generatedExercise.sources.map((source) => (
+                      <Badge key={source} variant="secondary" className="font-normal">{source}</Badge>
+                    ))}
+                  </div>
+                  <p className="text-sm leading-relaxed">{generatedExercise.statement}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {generatedExercise.expected_skills.map((skill) => (
+                      <Badge key={skill} variant="outline" className="font-normal">{skill}</Badge>
+                    ))}
+                  </div>
+                  <details>
+                    <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                      <Lightbulb className="size-4 text-primary" /> Afficher une piste
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{generatedExercise.hint ?? "Aucune piste demandée."}</p>
+                  </details>
+                  {generatedExercise.solution && (
+                    <details>
+                      <summary className="cursor-pointer text-sm font-medium">Afficher la correction</summary>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{generatedExercise.solution}</p>
+                    </details>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </>
+        }
+      />
     </div>
   )
 }

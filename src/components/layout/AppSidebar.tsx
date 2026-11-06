@@ -2,7 +2,6 @@ import {
   BookOpen,
   CalendarDays,
   ClipboardCheck,
-  GraduationCap,
   History,
   LayoutDashboard,
   Trophy,
@@ -26,7 +25,6 @@ const navigationGroups = [
     label: "Apprentissage",
     items: [
       { title: "Dashboard", url: "/", icon: LayoutDashboard },
-      { title: "Tuteur IA", url: "/tutor", icon: GraduationCap, badge: "IA" },
       { title: "Mes Cours", url: "/courses", icon: BookOpen },
       { title: "Évaluations", url: "/evaluations", icon: ClipboardCheck },
       { title: "Révisions", url: "/revisions", icon: History },

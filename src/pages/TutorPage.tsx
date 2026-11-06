@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link, useParams } from "react-router"
 import {
   Sparkles,
   Send,
@@ -9,9 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { mockCourses } from "@/data/courses"
 
 export default function TutorPage() {
-  const [selectedCourse, setSelectedCourse] = useState("11X001")
+  const { courseId } = useParams()
+  const selectedCourseData = mockCourses.find((course) => course.id === courseId) ?? mockCourses[0]
   const [inputMessage, setInputMessage] = useState("")
 
   const [messages, setMessages] = useState([
@@ -31,13 +34,6 @@ export default function TutorPage() {
     },
   ])
 
-  const courses = [
-    { code: "11X001", name: "Analyse I" },
-    { code: "12X002", name: "Algorithmique" },
-    { code: "11X010", name: "Probabilités & Stats" },
-    { code: "13X005", name: "Bases de Données" },
-  ]
-
   const handleSend = () => {
     if (!inputMessage.trim()) return
     setMessages((prev) => [
@@ -45,7 +41,7 @@ export default function TutorPage() {
       { role: "user", content: inputMessage },
       {
         role: "assistant",
-        content: `Excellente question sur ${courses.find((c) => c.code === selectedCourse)?.name}. Voici une piste pour t'aider à débloquer ce point...`,
+        content: `Excellente question sur ${selectedCourseData.title}. Voici une piste pour t'aider à débloquer ce point...`,
       },
     ])
     setInputMessage("")
@@ -53,7 +49,11 @@ export default function TutorPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header épuré */}
+      {courseId && (
+        <Link to={`/courses/${courseId}`} className="text-xs text-muted-foreground hover:text-foreground">
+          ← Retour au cours
+        </Link>
+      )}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -67,19 +67,9 @@ export default function TutorPage() {
           </p>
         </div>
 
-        {/* Sélecteur de cours sobre */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {courses.map((c) => (
-            <Button
-              key={c.code}
-              variant={selectedCourse === c.code ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedCourse(c.code)}
-              className="h-8 text-xs font-normal"
-            >
-              {c.name}
-            </Button>
-          ))}
+        <div className="rounded-xl border bg-muted/30 px-3 py-2 text-right">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Cours sélectionné</p>
+          <p className="text-xs font-medium">{selectedCourseData.title}</p>
         </div>
       </div>
 
